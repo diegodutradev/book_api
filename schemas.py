@@ -1,15 +1,37 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, EmailStr
+from typing import List, Optional
 
 class BookBase(BaseModel):
-    title: str = Field(..., min_length=3, max_length=100, example="O Auto da Compadecida")
-    author: str = Field(..., min_length=3, max_length=100, example="Ariano Suassuna")
-    year: int = Field(..., gt=0, example=1995)
+    title: str
+    description: Optional[str] = None
 
 class BookCreate(BookBase):
     pass
 
 class Book(BookBase):
     id: int
+    owner_id: int
 
     class Config:
-        from_attributes = True  # Pydantic v2
+        orm_mode = True
+
+class UserBase(BaseModel):
+    username: str
+    email: EmailStr
+
+class UserCreate(UserBase):
+    password: str
+
+class User(UserBase):
+    id: int
+    books: List[Book] = []
+
+    class Config:
+        orm_mode = True
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    username: Optional[str] = None
